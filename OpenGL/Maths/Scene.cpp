@@ -334,7 +334,14 @@ void Scene::mainLoop()
 			{
 				for (int i = 0; i < 4; i++)
 				{
-					polygons->at(0).getPoints()->at(i) = this->rotate_point(savePoly, 0.20f, polygons->at(0).getPoints()->at(i));
+					// Rotation
+					//polygons->at(0).getPoints()->at(i) = this->rotate_point(savePoly, 0.20f, polygons->at(0).getPoints()->at(i));
+
+					// Scale
+					//polygons->at(0).getPoints()->at(i) = this->scalePoint(polygons->at(0).getPoints()->at(i), 1.1f);
+
+					// Translate
+					polygons->at(0).getPoints()->at(i) = this->translatePoint(polygons->at(0).getPoints()->at(i), -0.2f, 0.2f);
 				}
 			}
 
@@ -754,6 +761,28 @@ void Scene::cursorInPolygon(maths::Point p)
 			stackPolygonClicked->push_back(polygons->at(i));
 		}
 	}
+}
+
+maths::Point Scene::scalePoint(maths::Point p, float ratio)
+{
+	// TODO : Test ratio
+
+	maths::Point resPoint;
+
+	resPoint.x = p.x * ratio;
+	resPoint.y = p.y * ratio;
+
+	return resPoint;
+}
+
+maths::Point Scene::translatePoint(maths::Point p, float translateX, float translateY)
+{
+	maths::Point resPoint;
+
+	resPoint.x = p.x + translateX;
+	resPoint.y = p.y + translateY;
+
+	return resPoint;
 }
 
 maths::Point Scene::rotate_point(maths::Polygon poly,float angle,maths::Point p)

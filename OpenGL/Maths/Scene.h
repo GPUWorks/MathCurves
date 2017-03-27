@@ -73,6 +73,8 @@ public:
 	void setDrawWindow();
 	static void menuCallBack(int i);
 	maths::Point rotate_point(maths::Polygon poly,float angle,maths::Point p);
+	maths::Point scalePoint(maths::Point p, float ratio);
+	maths::Point translatePoint(maths::Point p, float translateX, float translateY);
 	Scene(int w, int h);
 	~Scene();
 };
