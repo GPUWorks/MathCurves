@@ -324,6 +324,20 @@ void Scene::mainLoop()
 		glEnableVertexAttribArray(color_position);*/
 		if (!polygons->empty())
 		{
+			// TEST TRANSFORMATION POLYGON / POINTS ANTHO
+			if(countPass == 0)
+			{
+				savePoly = polygons->at(0);
+				countPass++;
+			}
+			if(polygons->at(0).getPoints()->size() == 4)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					polygons->at(0).getPoints()->at(i) = this->rotate_point(savePoly, 0.20f, polygons->at(0).getPoints()->at(i));
+				}
+			}
+
 			for (int i = 0; i < polygons->size(); i++)
 			{
 				const maths::Point *points = polygons->at(i).getPoints()->data();
@@ -637,7 +651,7 @@ std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 			maths::Point* pointYLigneBalayage = ConvertPointPixelToOpenGLUnit(ligneBallayage->at(1));
 
 			// Petit cas particulier pour le dernier point que l'on associe au premier point pour tester le côté qui ferme le polygon
-			// TODO : Trier intersection avec les segements ayant la norme la plus petite par rapport au bord gauche de la fenêtre
+			// TODO : Trier intersection avec les segments ayant la norme la plus petite par rapport au bord gauche de la fenêtre
 			if (i == nbPoint - 1)
 			{
 				pointIntersection = CVecteur::Intersection(*pointXLigneBalayage, *pointYLigneBalayage, pointsFromPolygon->at(i), pointsFromPolygon->at(0));
@@ -742,6 +756,40 @@ void Scene::cursorInPolygon(maths::Point p)
 	}
 }
 
+maths::Point Scene::rotate_point(maths::Polygon poly,float angle,maths::Point p)
+{
+  float s = sin(angle);
+  float c = cos(angle);
+
+  // On calcul la moyenne des coordonnées des sommets du polygon
+  float pivotX = 0;
+  float pivotY = 0;
+
+  int nbPoints = poly.getPoints()->size();
+  
+  for (int i = 0; i < nbPoints ; i++)
+  {
+	  pivotX += poly.getPoints()->at(i).x;
+	  pivotY += poly.getPoints()->at(i).y;
+  }
+
+  pivotX = pivotX / nbPoints;
+  pivotY = pivotY / nbPoints;
+
+  // application formule
+  p.x -= pivotX;
+  p.y -= pivotY;
+
+  // rotation du point
+  float xnew = p.x * c - p.y * s;
+  float ynew = p.x * s + p.y * c;
+
+  p.x = xnew + pivotX;
+  p.y = ynew + pivotY;
+
+  return p;
+}
+
 Scene::Scene(int w, int h)
 {
 	window = new maths::Polygon();
@@ -749,12 +797,14 @@ Scene::Scene(int w, int h)
 	height = h;
 	width = w;
 	value = 0;
+	drawWindow = true;
+	isInPolygon = true;
 	Scene::currentInstance = this;
 	input = new Input(this);
 	polygons = new std::vector<maths::Polygon>();
 	allIntersection = new std::vector<std::vector<maths::Point>*>();
 	stackPolygonClicked = new std::vector<maths::Polygon>();
-
+	countPass = 0;
 	radiusPoint.x = 10.0f/ width;
 	radiusPoint.y = 10.0f /height;
 }

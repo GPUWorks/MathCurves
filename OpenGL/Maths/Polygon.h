@@ -38,6 +38,7 @@ namespace maths
 		void setVisibility(int index, bool visible);
 		bool isPointVisible(int index);
 		std::vector<maths::Point>* getPoints();
+		void setPoint(maths::Point p, int indice);
 		const std::vector<maths::Point>* getNormals();
 		Polygon();
 		~Polygon();

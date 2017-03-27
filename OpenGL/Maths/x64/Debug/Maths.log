@@ -1,0 +1,36 @@
+﻿La génération a démarré 27/03/2017 19:32:41.
+     1>Projet "C:\Users\User\Documents\GitHub\MathCurves\OpenGL\Maths\Maths.vcxproj" sur le nœud 2 (Build cible(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\User\Documents\GitHub\MathCurves\OpenGL\Maths\x64\Debug\Maths.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\Users\User\Documents\GitHub\MathCurves\OpenGL\libs\freeglut\lib /LIBPATH:"C:\Users\User\Documents\GitHub\MathCurves\OpenGL\libs\glew-2.0.0\lib\Release\x64" freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\User\Documents\GitHub\MathCurves\OpenGL\Maths\x64\Debug\Maths.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\User\Documents\GitHub\MathCurves\OpenGL\Maths\x64\Debug\Maths.lib" /MACHINE:X64 x64\Debug\Maths.res
+         x64\Debug\resource.res
+         x64\Debug\EsgiShader.obj
+         x64\Debug\CVecteur.obj
+         x64\Debug\Input.obj
+         x64\Debug\Main.obj
+         x64\Debug\Math.obj
+         x64\Debug\Polygon.obj
+         x64\Debug\Scene.obj
+         x64\Debug\SquareMatrice.obj
+     1>Input.obj : error LNK2019: symbole externe non résolu __imp_glutPostRedisplay référencé dans la fonction "public: void __cdecl Input::checkKeyboardInputs(unsigned char,int,int)" (?checkKeyboardInputs@Input@@QEAAXEHH@Z)
+     1>Scene.obj : error LNK2001: symbole externe non résolu __imp_glutPostRedisplay
+     1>Input.obj : error LNK2019: symbole externe non résolu __imp_glutKeyboardFunc référencé dans la fonction "public: void __cdecl Input::init(void)" (?init@Input@@QEAAXXZ)
+     1>Input.obj : error LNK2019: symbole externe non résolu __imp_glutMouseFunc référencé dans la fonction "public: void __cdecl Input::init(void)" (?init@Input@@QEAAXXZ)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutInitWindowPosition référencé dans la fonction "public: void __cdecl Scene::initOpenGl(int,char const *)" (?initOpenGl@Scene@@QEAAXHPEBD@Z)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutInitWindowSize référencé dans la fonction "public: void __cdecl Scene::initOpenGl(int,char const *)" (?initOpenGl@Scene@@QEAAXHPEBD@Z)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutInitDisplayMode référencé dans la fonction "public: void __cdecl Scene::initOpenGl(int,char const *)" (?initOpenGl@Scene@@QEAAXHPEBD@Z)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutMainLoop référencé dans la fonction "public: void __cdecl Scene::lauchOpenGLLoop(void)" (?lauchOpenGLLoop@Scene@@QEAAXXZ)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutDestroyWindow référencé dans la fonction "private: void __cdecl Scene::menu(int)" (?menu@Scene@@AEAAXH@Z)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutSwapBuffers référencé dans la fonction "public: void __cdecl Scene::mainLoop(void)" (?mainLoop@Scene@@QEAAXXZ)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutAddMenuEntry référencé dans la fonction "public: void __cdecl Scene::createMenu(void)" (?createMenu@Scene@@QEAAXXZ)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutAttachMenu référencé dans la fonction "public: void __cdecl Scene::createMenu(void)" (?createMenu@Scene@@QEAAXXZ)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutDisplayFunc référencé dans la fonction "public: void __cdecl Scene::initOpenGl(int,char const *)" (?initOpenGl@Scene@@QEAAXHPEBD@Z)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp_glutBitmapCharacter référencé dans la fonction "private: void __cdecl Scene::drawChar(char,struct maths::Point,struct maths::Color)" (?drawChar@Scene@@AEAAXDUPoint@maths@@UColor@3@@Z)
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp___glutInitWithExit référencé dans la fonction glutInit_ATEXIT_HACK
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp___glutCreateWindowWithExit référencé dans la fonction glutCreateWindow_ATEXIT_HACK
+     1>Scene.obj : error LNK2019: symbole externe non résolu __imp___glutCreateMenuWithExit référencé dans la fonction glutCreateMenu_ATEXIT_HACK
+     1>C:\Users\User\Documents\GitHub\MathCurves\OpenGL\Maths\x64\Debug\Maths.exe : fatal error LNK1120: 16 externes non résolus
+     1>Génération du projet "C:\Users\User\Documents\GitHub\MathCurves\OpenGL\Maths\Maths.vcxproj" terminée (Build cible(s)) -- ÉCHEC.
+
+ÉCHEC de la build.
+
+Temps écoulé 00:00:00.39

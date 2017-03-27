@@ -96,6 +96,11 @@ const std::vector<maths::Point>* maths::Polygon::getNormals()
 	return normals;
 }
 
+void maths::Polygon::setPoint(maths::Point p, int indice)
+{
+	this->points->at(indice) = p;
+}
+
 maths::Polygon::Polygon()
 {
 	points = new std::vector<maths::Point>();

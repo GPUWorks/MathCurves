@@ -36,18 +36,22 @@ class Scene
 	int width;
 	int height;
 	void drawChar(const char c, const maths::Point position, const maths::Color color);
-	bool drawWindow = true;
+	bool drawWindow;
 	void menu(int num);
 	int windowId;
 	int value;
 	int option;
 	int mainMenu;
-	bool isInPolygon = true; 
+	bool isInPolygon; 
 	State state;
 	std::vector<maths::Polygon> *polygons; 
 	maths::Polygon *window;
 	std::vector<std::vector<maths::Point>*> *allIntersection ;
 	std::vector<maths::Polygon> *stackPolygonClicked ;
+
+	// TEST ANTHO
+	int countPass;
+	maths::Polygon savePoly;
 
 public:
 	void cut(maths::Polygon pol);
@@ -68,6 +72,7 @@ public:
 	void addPoint(maths::Point p);
 	void setDrawWindow();
 	static void menuCallBack(int i);
+	maths::Point rotate_point(maths::Polygon poly,float angle,maths::Point p);
 	Scene(int w, int h);
 	~Scene();
 };
