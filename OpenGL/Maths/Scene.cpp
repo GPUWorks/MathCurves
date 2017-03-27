@@ -7,196 +7,13 @@ Scene* Scene::currentInstance = nullptr;
 int colors[9] = {
 	255, 0, 0,
 	0, 255, 0,
-	0, 0, 255
+	0, 0, 255 
 };
 
 void Scene::drawCallBack()
 {
 	Scene::currentInstance->mainLoop();
 }
-
-void Scene::cut(maths::Polygon pol)
-{
-	std::cout << "start cut"<< std::endl;
-
-
-	maths::Polygon win = *window;
-
-	std::vector<int> *indexAddedPoints = new std::vector<int>();
-	std::vector<int> *addedPointWinPointIndex = new std::vector<int>();
-
-	win.calculateNormals();
-	int nbPoint = pol.getPoints()->size();
-	int decallage = 0;
-	//variables utilisées pour trouver l'intersection la plus proche
-	for (int i=0; i < nbPoint+decallage; i++)
-	{
-		std::cout << std::endl << "test point n°" << i<<std::endl;
-		Point p1 = pol.getPoints()->at(i);
-		std::cout << "x=" << p1.x << "		y=" << p1.y << std::endl;
-		Point p2;
-		if(i== nbPoint + decallage -1)
-			p2= pol.getPoints()->at(0);
-		else
-			p2 = pol.getPoints()->at(i+1);
-
-		int nbPointWin = win.getPoints()->size();
-
-		//variable necessaire à ne garder que l'intersection la plus proche
-		float minNorme = -1;
-		Point minIntersection;
-		int minWinIndexPoint;
-
-		for (int j=0; j < nbPointWin ; j++)
-		{
-			Point p3 = win.getPoints()->at(j);
-			Point p4;
-			if (j == nbPointWin - 1)
-				p4 = win.getPoints()->at(0);
-			else  
-				p4 = win.getPoints()->at(j + 1);
-
-			bool p1Visibility = Math::isPointVisible(p1, p3, win.getNormals()->at(j));
-			if (!p1Visibility)
-				pol.setVisibility(i, false);
-			bool p2Visibility = Math::isPointVisible(p2, p3, win.getNormals()->at(j));
-
-				maths::Point intersection = Math::getIntersection2(p1, p2, p3,p4);
-				
-				if (intersection.x != -1 && intersection.y != -1 && (p1.x==intersection.x && p1.y==intersection.y)==false)
-				{
-					if (minNorme == -1)
-					{
-						minNorme = (intersection.x - p1.x)*(intersection.x - p1.x) + (intersection.y - p1.y)*(intersection.y - p1.y);
-						minIntersection = intersection;
-						minWinIndexPoint = j;
-					}
-					else
-					{
-						float norme = (intersection.x - p1.x)*(intersection.x - p1.x) + (intersection.y - p1.y)*(intersection.y - p1.y);
-						if (norme < minNorme)
-						{
-							minNorme = norme;
-							minIntersection = intersection;
-							minWinIndexPoint = j;
-						}
-					}
-				}
-		}
-
-		if (minNorme != -1)
-		{
-			pol.addPoint(minIntersection, i + 1);
-			indexAddedPoints->push_back(i + 1);
-			std::cout << "ajout index added point = " << i + 1<< std::endl;
-			addedPointWinPointIndex->push_back(minWinIndexPoint);
-			std::cout << "ajout d'un point" << std::endl;
-			std::cout << "x=" << minIntersection.x << "		y=" << minIntersection.y << std::endl;
-			//i++;
-			decallage++;
-		}
-
-	}
-
-	int nbPointWin = win.getPoints()->size();
-	nbPoint = pol.getPoints()->size();
-	
-	//block pour ajouter les points manquants
-	int nbAddedPoint = indexAddedPoints->size();
-	decallage = 0;
-	for (int i = 0; i < nbAddedPoint; i++)
-	{
-		int index;
-		int index1 = indexAddedPoints->at(i);
-		index = index1 + 1;
-		if (index == nbPoint + decallage)
-			index = 0;
-		int index2;
-		if (i == nbAddedPoint - 1)
-			index2 = indexAddedPoints->at(0);
-		else
-			index2 = indexAddedPoints->at(i + 1);
-		//sort si aucun point entre les 2 points ajouté
-		if (index == index2)
-			continue;
-
-		bool findVisiblePoint = false;
-		while (index != index2 && !findVisiblePoint)
-		{
-			if (pol.isPointVisible(index + decallage))
-			{
-				findVisiblePoint = true;
-			}
-			index++;
-			if (index == nbPoint + decallage)
-				index = 0;
-		}
-		if (!findVisiblePoint)
-		{
-			//si il y a des points entre les 2 points ajoutés mais aucun visible il faut ajouter les points de la fenetre
-			int indexWin1 = addedPointWinPointIndex->at(i) + 1;
-			if (indexWin1 == nbPointWin)
-				indexWin1 = 0;
-			int indexWin2;
-			if (i == nbAddedPoint - 1)
-				indexWin2 = addedPointWinPointIndex->at(0);
-			else
-				indexWin2 = addedPointWinPointIndex->at(i + 1);
-			indexWin2++;
-			if (indexWin2 == nbPointWin)
-				indexWin2 = 0;
-
-			while (indexWin1 != indexWin2)
-			{
-				pol.addPoint(win.getPoints()->at(indexWin1), index1 +decallage+ 1);
-				decallage++;
-				indexWin1++;
-				if (indexWin1 == nbPointWin)
-					indexWin1 = 0;
-			}
-		}
-
-	}
-	//enlève les points qui ne sont pas visible
-	nbPoint = pol.getPoints()->size();
-	std::cout << "nbpoint=" << nbPoint << std::endl; 
-	decallage = 0;
-	for (int i = 0; i < nbPoint-decallage; i++)
-	{
-		if (!pol.isPointVisible(i))
-		{
-			std::cout << "hidden" << std::endl; 
-			pol.removePoint(i);
-			i--;
-			decallage++;
-		}
-		else
-		{
-			std::cout << "visible" << std::endl;
-		}
-	}
-	nbPoint = pol.getPoints()->size();
-	if (nbPoint == 0)
-	{
-		for (int i = 0; i < nbPointWin; i++)
-		{
-			pol.addPoint(win.getPoints()->at(i));
-		}
-	}
-	std::cout << "nbpoint=" << nbPoint << std::endl;
-}
-
-void Scene::cut()
-{
-	if (!window->getPoints()->empty() && !polygons->empty())
-	{
-		for (int i = 0; i < polygons->size(); i++)
-		{
-			cut(polygons->at(i));
-		}
-	}
-}
-
 
 void Scene::flush()
 {
@@ -221,7 +38,7 @@ void Scene::initOpenGl(int argc, const char* argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 100);
 	glutInitWindowSize(width, height);
-	windowId = glutCreateWindow("Math");
+	windowId = glutCreateWindow("Maths");
 
 	createMenu();
 
@@ -248,13 +65,13 @@ void Scene::createMenu()
 	mainMenu = glutCreateMenu(Scene::menuCallBack);
 
 	glutAddMenuEntry("Exit", 0);
-	glutAddMenuEntry("Add polygon       A", 1);
+	glutAddMenuEntry("Add curve         A", 1);
 	glutAddMenuEntry("End edition       Z", 2);
-	glutAddMenuEntry("Cut               C", 3);
+	/*glutAddMenuEntry("Cut               C", 3);
 	glutAddMenuEntry("Fill polygon(s)   F", 4);
 	glutAddMenuEntry("Set window        Q", 5);
 	glutAddMenuEntry("Select polygon(s) W", 6);
-	glutAddMenuEntry("Hide/Show window  P", 7);
+	glutAddMenuEntry("Hide/Show window  P", 7);*/
 	/*
 	if (stackPolygonClicked->size() != 0)
 	{
@@ -320,55 +137,39 @@ void Scene::mainLoop()
 
 	if (state == DRAW)
 	{
-		/*glVertexAttribPointer(color_position, 3, GL_FLOAT, GL_FALSE, 0, color);
-		glEnableVertexAttribArray(color_position);*/
+		if (input->isMouseButtonPressed(0))
+			std::cout << "mousePressed";
+
 		if (!polygons->empty())
 		{
-			// TEST TRANSFORMATION POLYGON / POINTS ANTHO
-			if(countPass == 0)
-			{
-				savePoly = polygons->at(0);
-				countPass++;
-			}
-			if(polygons->at(0).getPoints()->size() == 4)
-			{
-				for (int i = 0; i < 4; i++)
-				{
-					// Rotation
-					//polygons->at(0).getPoints()->at(i) = this->rotate_point(savePoly, 0.20f, polygons->at(0).getPoints()->at(i));
-
-					// Scale
-					//polygons->at(0).getPoints()->at(i) = this->scalePoint(polygons->at(0).getPoints()->at(i), 1.1f);
-
-					// Translate
-					polygons->at(0).getPoints()->at(i) = this->translatePoint(polygons->at(0).getPoints()->at(i), -0.2f, 0.2f);
-				}
-			}
-
 			for (int i = 0; i < polygons->size(); i++)
 			{
+				polygons->at(i).recalculateBezierPoints(10);
+
+				const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
+				unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();
+
+				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, bezierPoints);
+				glEnableVertexAttribArray(position_location);
+
+				glPointSize(5);
+
+				glDrawArrays(GL_LINE_STRIP, 0, bezierSize);
+				glDisableVertexAttribArray(position_location);
+				glDisableVertexAttribArray(color_position);
+
 				const maths::Point *points = polygons->at(i).getPoints()->data();
 				unsigned int size = polygons->at(i).getPoints()->size();
 
 				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
 				glEnableVertexAttribArray(position_location);
 
-				glDrawArrays(GL_LINE_LOOP, 0, size);
+				glPointSize(5);
+
+				glDrawArrays(GL_POINTS, 0, size);
 				glDisableVertexAttribArray(position_location);
 				glDisableVertexAttribArray(color_position);
 			}
-		}
-		if (drawWindow)
-		{
-			const maths::Point *points = window->getPoints()->data();
-			unsigned int size = window->getPoints()->size();
-
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
-			glEnableVertexAttribArray(position_location);
-
-			glDrawArrays(GL_LINE_LOOP, 0, size);
-			glDisableVertexAttribArray(position_location);
-			glDisableVertexAttribArray(color_position);
 		}
 
 	}
@@ -837,6 +638,7 @@ Scene::Scene(int w, int h)
 	radiusPoint.x = 10.0f/ width;
 	radiusPoint.y = 10.0f /height;
 }
+
 
 Scene::~Scene()
 {

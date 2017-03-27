@@ -27,6 +27,8 @@ namespace maths
 		std::vector<maths::Point> *vectors;
 		std::vector<bool> *visibility;
 		bool sensTrigo;
+		void recursiveRecalculateBezierPoints();
+		std::vector<maths::Point> *bezierPoints;
 
 	public:
 		void calculateNormals();
@@ -37,11 +39,13 @@ namespace maths
 		void removePoint(int index);
 		void setVisibility(int index, bool visible);
 		bool isPointVisible(int index);
-		std::vector<maths::Point>* getPoints();
 		void setPoint(maths::Point p, int indice);
 		const std::vector<maths::Point>* getNormals();
 		Polygon();
 		~Polygon();
+		std::vector<maths::Point>* getPoints();
+		std::vector<maths::Point>* getBezierPoints();
+		void recalculateBezierPoints(int index);
 	};
 }
 

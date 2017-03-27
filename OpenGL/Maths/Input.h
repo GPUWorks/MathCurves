@@ -21,7 +21,7 @@
 
 
 enum ButtonState {
-	PRESSED, CLICKED
+	PRESSED, CLICKED, NONE
 };
 
 enum State {
@@ -37,6 +37,9 @@ class Input
 	ButtonState* mouseButtons;
 	ButtonState* letters;
 	Scene* scene;
+	bool mouseMove;
+	float mouseX;
+	float mouseY;
 
 
 	static void keyboardCallBack(unsigned char  touche, int x, int y);
@@ -53,6 +56,12 @@ public:
 
 	void checkKeyboardInputs(unsigned char  touche, int x, int y);
 	void checkMouseClicks(int button, int state, int x, int y);
+	void checkMouseMoves(int x, int y);
+	static void mouseMoveCallBack(int x, int y);
+	float getMouseX();
+	float getMouseY();
+	bool mouseHasMove();
+	void SetMouseMove(bool b);
 };
 
 #endif
