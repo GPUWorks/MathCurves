@@ -36,6 +36,7 @@ void Input::init()
 {
 	glutKeyboardFunc(Input::keyboardCallBack);
 	glutMouseFunc(Input::mouseCallBack);
+	glutPassiveMotionFunc(Input::mouseMoveCallBack);
 }
 
 bool Input::isLetterPressed(char letter)
@@ -125,9 +126,30 @@ void Input::checkMouseClicks(int button, int state, int x, int y)
 	if (sceneState == DRAW && button == GLUT_LEFT_BUTTON)
 	{
 		if (state == GLUT_DOWN)
+		{
 			mouseButtons[0] = PRESSED;
+			if (scene->hasSelectedPoint())
+			{
+				scene->unselectPoint();
+			}
+			else
+			{
+				if (scene->isPointSelected(mouseX, mouseY))
+				{
+					std::cout << "point selected" << std::endl;
+				}
+			}
+			
+
+			glutPostRedisplay();
+			std::cout << "mouseButton pressed"<<std::endl;
+		}
 		else
+		{
 			mouseButtons[0] = CLICKED;
+			glutPostRedisplay();
+			std::cout << "mouseButton up" << std::endl;
+		}
 
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && (sceneState == ENTER_POLYGON || sceneState == ENTER_WINDOW)) {
@@ -151,7 +173,11 @@ void Input::checkMouseClicks(int button, int state, int x, int y)
 
 bool Input::mouseHasMove()
 {
-	return mouseMove;
+	if (mouseMove)
+	{
+		mouseMove = false;
+		return true;
+	}
 }
 
 void Input::SetMouseMove(bool b)
@@ -173,10 +199,25 @@ float Input::getMouseY()
 void Input::checkMouseMoves(int x, int y)
 {
 
-	scene->changeState(COLOR);
-
 	mouseMove = true;
-	mouseX = x;
-	mouseY = y;
+
+	float mX = x;
+	float mY = y;
+	
+	float width = scene->getWidth();
+	float height = scene->getHeight();
+
+	mX -= width / 2;
+	mX /= width / 2;
+	mY = height - mY;
+	mY -= height / 2;
+	mY /= height / 2;
+	mX = Math::round(mX);
+	mY = Math::round(mY);
+
+	mouseX = mX;
+	mouseY = mY;
+
+	scene->moveSelectedPoint(mouseX, mouseY);
 
 }

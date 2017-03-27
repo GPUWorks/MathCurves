@@ -49,13 +49,14 @@ class Scene
 	std::vector<std::vector<maths::Point>*> *allIntersection ;
 	std::vector<maths::Polygon> *stackPolygonClicked ;
 
+	int polygonSelected;
+	int pointSelected;
+
 	// TEST ANTHO
 	int countPass;
 	maths::Polygon savePoly;
 
 public:
-	void cut(maths::Polygon pol);
-	void cut();
 	void flush();
 	void lauchOpenGLLoop();
 	//static void menuCallBack(int num);
@@ -77,6 +78,12 @@ public:
 	maths::Point translatePoint(maths::Point p, float translateX, float translateY);
 	Scene(int w, int h);
 	~Scene();
+	bool isPointSelected(float mX, float mY);
+	float getWidth();
+	float getHeight();
+	void unselectPoint(); 
+	void moveSelectedPoint(float x, float y); 
+	bool hasSelectedPoint(); 
 };
 
 #endif // ! SCENE

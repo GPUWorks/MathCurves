@@ -27,6 +27,23 @@ void Scene::flush()
 	}
 }
 
+void Scene::moveSelectedPoint(float x, float y)
+{
+	if (hasSelectedPoint())
+	{
+		Point p;
+		p.x = x;
+		p.y = y;
+		polygons->at(polygonSelected).setPoint(p, pointSelected);
+		glutPostRedisplay();
+	}
+}
+
+bool Scene::hasSelectedPoint()
+{
+	return (polygonSelected != -1 && pointSelected != -1);
+}
+
 void Scene::lauchOpenGLLoop()
 {
 	glutMainLoop();
@@ -122,6 +139,56 @@ void Scene::menu(int num) {
 	glutPostRedisplay();
 }
 
+
+bool Scene::isPointSelected(float mX, float mY)
+{
+	if (state == DRAW)
+	{
+
+		float nb = 10;
+		float nbX = nb /width;
+		float nbY = nb / height;
+
+		std::cout << "mx = " << mX <<"  mY=" << mY << std::endl;
+		for (int i = 0; i < polygons->size(); i++)
+		{
+			for (int j = 0; j < polygons->at(i).getPoints()->size(); j++)
+			{
+				Point p = polygons->at(i).getPoints()->at(j);
+				
+				std::cout << "x=" << p.x <<"   y=" << p.y << std::endl;
+				if (mX > p.x - nbX && mX<p.x + nbX && mY>p.y - nbY && mY < p.y + nbY)
+				{
+					pointSelected = j;
+					polygonSelected = i;
+					return true;
+				}
+			}
+		}
+	}
+	pointSelected = -1;
+	polygonSelected = -1;
+
+	return false;
+}
+
+
+void Scene::unselectPoint()
+{
+	pointSelected = -1;
+	polygonSelected = -1;
+}
+
+float Scene::getWidth()
+{
+	return width;
+}
+
+float Scene::getHeight()
+{
+	return height;
+}
+
 void Scene::mainLoop()
 {
 	glViewport(0, 0, width, height);
@@ -137,8 +204,6 @@ void Scene::mainLoop()
 
 	if (state == DRAW)
 	{
-		if (input->isMouseButtonPressed(0))
-			std::cout << "mousePressed";
 
 		if (!polygons->empty())
 		{
@@ -173,61 +238,35 @@ void Scene::mainLoop()
 		}
 
 	}
-	else if (state == FILL)
-	{
-		if (allIntersection->size() != 0)
-		{
-			for (int j = 0; j < allIntersection->size(); j++)
-			{
-
-				unsigned int nbIntersection = allIntersection->at(j)->size();
-
-				if (nbIntersection != 0)
-				{
-					for (int i = 0; i < nbIntersection; i += 2)
-					{
-						glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &allIntersection->at(j)->at(i));
-						glEnableVertexAttribArray(position_location);
-
-						glDrawArrays(GL_LINES, 0, 2);
-						glDisableVertexAttribArray(position_location);
-						glDisableVertexAttribArray(color_position);
-					}
-
-				}
-			}
-			
-		}
-
-		
-
-		for (int i = 0; i < polygons->size(); i++)
-		{
-			const maths::Point *points = polygons->at(i).getPoints()->data();
-			unsigned int size = polygons->at(i).getPoints()->size();
-
-
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
-			glVertexAttribPointer(color_position, 3, GL_INT, GL_FALSE, 0, colors);
-			glEnableVertexAttribArray(position_location);
-			glEnableVertexAttribArray(color_position);
-			glDrawArrays(GL_LINE_LOOP, 0, size);
-			glDisableVertexAttribArray(position_location);
-			glDisableVertexAttribArray(color_position);
-		}
-	}
+	
 	else if (state == ENTER_POLYGON)
 	{
 
 		for (int i = 0; i < polygons->size() - 1; i++)
 		{
+			polygons->at(i).recalculateBezierPoints(10);
+
+			const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
+			unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();
+
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, bezierPoints);
+			glEnableVertexAttribArray(position_location);
+
+			glPointSize(5);
+
+			glDrawArrays(GL_LINE_STRIP, 0, bezierSize);
+			glDisableVertexAttribArray(position_location);
+			glDisableVertexAttribArray(color_position);
+
 			const maths::Point *points = polygons->at(i).getPoints()->data();
 			unsigned int size = polygons->at(i).getPoints()->size();
 
 			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
 			glEnableVertexAttribArray(position_location);
 
-			glDrawArrays(GL_LINE_LOOP, 0, size);
+			glPointSize(5);
+
+			glDrawArrays(GL_POINTS, 0, size);
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
 		}
@@ -235,80 +274,14 @@ void Scene::mainLoop()
 		const maths::Point *points = polygons->back().getPoints()->data();
 		unsigned int size = polygons->back().getPoints()->size();
 
-		maths::Point tmpPoints[4];
-
 		for (int i = 0; i < size; i++)
 		{
-
-			tmpPoints[0].x = points[i].x - radiusPoint.x;
-			tmpPoints[0].y = points[i].y - radiusPoint.y;
-			tmpPoints[1].x = points[i].x - radiusPoint.x;
-			tmpPoints[1].y = points[i].y + radiusPoint.y;
-			tmpPoints[2].x = points[i].x + radiusPoint.x;
-			tmpPoints[2].y = points[i].y - radiusPoint.y;
-			tmpPoints[3].x = points[i].x + radiusPoint.x;
-			tmpPoints[3].y = points[i].y + radiusPoint.y;
-
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, tmpPoints);
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &points[i]);
 			glEnableVertexAttribArray(position_location);
 
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			glDisableVertexAttribArray(position_location);
-			glDisableVertexAttribArray(color_position);
-		}
-		if (drawWindow)
-		{
-			const maths::Point *points = window->getPoints()->data();
-			unsigned int size = window->getPoints()->size();
+			glPointSize(10);
 
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
-			glEnableVertexAttribArray(position_location);
-
-			glDrawArrays(GL_LINE_LOOP, 0, size);
-			glDisableVertexAttribArray(position_location);
-			glDisableVertexAttribArray(color_position);
-		}
-	}
-	else if (state == ENTER_WINDOW)
-	{
-		if (!polygons->empty())
-		{
-			for (int i = 0; i < polygons->size() - 1; i++)
-			{
-				const maths::Point *points = polygons->at(i).getPoints()->data();
-				unsigned int size = polygons->at(i).getPoints()->size();
-
-				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
-				glEnableVertexAttribArray(position_location);
-
-				glDrawArrays(GL_LINE_LOOP, 0, size);
-				glDisableVertexAttribArray(position_location);
-				glDisableVertexAttribArray(color_position);
-			}
-		}
-		
-
-		const maths::Point *points = window->getPoints()->data();
-		unsigned int size = window->getPoints()->size();
-
-		maths::Point tmpPoints[4];
-
-		for (int i = 0; i < size; i++)
-		{
-
-			tmpPoints[0].x = points[i].x - radiusPoint.x;
-			tmpPoints[0].y = points[i].y - radiusPoint.y;
-			tmpPoints[1].x = points[i].x - radiusPoint.x;
-			tmpPoints[1].y = points[i].y + radiusPoint.y;
-			tmpPoints[2].x = points[i].x + radiusPoint.x;
-			tmpPoints[2].y = points[i].y - radiusPoint.y;
-			tmpPoints[3].x = points[i].x + radiusPoint.x;
-			tmpPoints[3].y = points[i].y + radiusPoint.y;
-
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, tmpPoints);
-			glEnableVertexAttribArray(position_location);
-
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glDrawArrays(GL_POINTS, 0, 1);
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
 		}
@@ -637,6 +610,8 @@ Scene::Scene(int w, int h)
 	countPass = 0;
 	radiusPoint.x = 10.0f/ width;
 	radiusPoint.y = 10.0f /height;
+	pointSelected = -1;
+	polygonSelected = -1;
 }
 
 
