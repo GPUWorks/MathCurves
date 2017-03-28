@@ -78,6 +78,7 @@ void Scene::initOpenGl(int argc, const char* argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 100);
 	glutInitWindowSize(width, height);
+
 	windowId = glutCreateWindow("Maths");
 
 	createMenu();
@@ -242,8 +243,10 @@ void Scene::linkOtherCurve()
 		{
 			changeState(ENTER_POLYGON);
 			maths::Polygon p2 = polygons->at(polygons->size() - 1);
-			p1.setOutPolygon(&p2);
-			p2.setInPolygon(&p1);
+
+			polygons->at(polygonSelected).setOutPolygon(&polygons->at(polygons->size() - 1));
+			polygons->at(polygons->size() - 1).setInPolygon(&polygons->at(polygonSelected));
+
 			p2.addPoint(p1.getPoints()->at((p1.getPoints()->size() - 1)));
 		}
 		
@@ -254,7 +257,6 @@ bool Scene::isPointSelected(float mX, float mY)
 {
 	if (state == DRAW)
 	{
-
 		float nb = 10;
 		float nbX = nb /width;
 		float nbY = nb / height;
@@ -329,7 +331,7 @@ void Scene::mainLoop()
 		{
 			for (int i = 0; i < polygons->size(); i++)
 			{
-				polygons->at(i).recalculateBezierPointsCoxDeBoor();
+				polygons->at(i).recalculateBezierPoints();
 
 				const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
 				unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();
@@ -407,7 +409,7 @@ void Scene::mainLoop()
 
 		for (int i = 0; i < polygons->size() - 1; i++)
 		{
-			polygons->at(i).recalculateBezierPoints();
+			//polygons->at(i).recalculateBezierPoints();
 
 			const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
 			unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();

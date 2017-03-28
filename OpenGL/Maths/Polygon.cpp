@@ -100,6 +100,15 @@ const std::vector<maths::Point>* maths::Polygon::getNormals()
 void maths::Polygon::setPoint(maths::Point p, int indice)
 {
 	this->points->at(indice) = p;
+
+	if (outPolygon != NULL && indice == points->size() - 1)
+	{
+		outPolygon->getPoints()->at(0) = p;
+	}
+	else if (inPolygon != NULL && indice == 0 )
+	{
+		inPolygon->getPoints()->at(inPolygon->getPoints()->size()-1) = p;
+	}
 }
 
 maths::Polygon::Polygon()
@@ -168,17 +177,86 @@ void maths::Polygon::recalculateBezierPoints()
 {
 	int index = bezierRecursion;
 	bezierPoints->clear();
-	for (int i = 0; i < points->size(); i++)
+
+	int start = 0;
+
+	if (inPolygon != NULL)
 	{
-		bezierPoints->push_back(points->at(i));
+		std::cout << "inPolygon" << std::endl;
+		start = 1;
 	}
-	while (index > 0)
+	
+	if (outPolygon != NULL)
 	{
-		recursiveRecalculateBezierPoints();
-		--index;
+		std::cout << "outPolygon" << std::endl;
+		for (int i = start; i < points->size()-1; i++)
+		{
+			bezierPoints->push_back(points->at(i));
+		}
+
+		while (index > 0)
+		{
+			recursiveRecalculateBezierPoints();
+			--index;
+		}
+
+		std::vector<maths::Point> *tmp = new std::vector<maths::Point>();
+
+		for (int i = 0; i < bezierPoints->size(); i++)
+		{
+			tmp->push_back(bezierPoints->at(i));
+		}
+
+		bezierPoints->clear();
+		bezierPoints->push_back(points->at(points->size() - 2));
+		bezierPoints->push_back(points->at(points->size() - 1));
+		
+		Point p3 = outPolygon->getPoint(1);
+		bezierPoints->push_back(p3);
+			
+
+		index = bezierRecursion;
+		while (index > 0)
+		{
+			recursiveRecalculateBezierPoints();
+			--index;
+		}
+
+		for (int i = 0; i < bezierPoints->size(); i++)
+		{
+			tmp->push_back(bezierPoints->at(i));
+		}
+		bezierPoints->clear();
+		for (int i = 0; i < tmp->size(); i++)
+		{
+			bezierPoints->push_back(tmp->at(i));
+		}
+
+		delete tmp;
 	}
+	else
+	{
+		for (int i = start; i < points->size(); i++)
+		{
+			bezierPoints->push_back(points->at(i));
+		}
+
+		while (index > 0)
+		{
+			recursiveRecalculateBezierPoints();
+			--index;
+		}
+	}
+	
+	
 }
 
+
+
+maths::Point maths::Polygon::getPoint(int i)
+{
+	return points->at(i);
+}
 
 void  maths::Polygon::changeBezierRecursion(int nb)
 {

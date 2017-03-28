@@ -51,6 +51,7 @@ namespace maths
 		void calculateVectors();
 		void addPoint(maths::Point p, int index);
 		void addPoint(maths::Point p);
+		maths::Point getPoint(int i);
 		void removePoint();
 		void removePoint(int index);
 		void setVisibility(int index, bool visible);
