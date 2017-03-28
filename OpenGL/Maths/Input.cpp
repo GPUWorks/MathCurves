@@ -8,6 +8,11 @@ void Input::keyboardCallBack(unsigned char touche, int x, int y)
 	Input::currentInstance->checkKeyboardInputs(touche, x, y);
 }
 
+void Input::keyboardUpCallBack(unsigned char touche, int x, int y)
+{
+	Input::currentInstance->checkKeyboardUpInputs(touche, x, y);
+}
+
 void Input::mouseCallBack(int button, int state, int x, int y)
 {
 	Input::currentInstance->checkMouseClicks(button, state, x, y);
@@ -24,6 +29,9 @@ Input::Input(Scene *s)
 	mouseButtons = new ButtonState[3];
 	for (int i = 0; i < 3; i++)
 		mouseButtons[i] = NONE;
+	letters = new ButtonState[26];
+	for (int i = 0; i < 26; i++)
+		letters[i] = NONE;
 	scene = s;
 }
 
@@ -37,11 +45,12 @@ void Input::init()
 	glutKeyboardFunc(Input::keyboardCallBack);
 	glutMouseFunc(Input::mouseCallBack);
 	glutPassiveMotionFunc(Input::mouseMoveCallBack);
+	glutKeyboardUpFunc(Input::keyboardUpCallBack);
 }
 
 bool Input::isLetterPressed(char letter)
 {
-	int nb = letter - (int)'A';
+	int nb = letter - (int)'a';
 	if (nb<0 || nb>25)
 		return false;
 	return (letters[nb] == PRESSED);
@@ -49,7 +58,7 @@ bool Input::isLetterPressed(char letter)
 
 bool Input::isLetterClicked(char letter)
 {
-	int nb = letter - (int)'A';
+	int nb = letter - (int)'a';
 	if (nb<0 || nb>25)
 		return false;
 	if (letters[nb] == CLICKED)
@@ -58,6 +67,18 @@ bool Input::isLetterClicked(char letter)
 		return true;
 	}
 	return false;
+}
+
+void Input::checkKeyboardUpInputs(unsigned char  touche, int x, int y)
+{
+	int nb = touche - (int)'a';
+	if (nb<0 || nb>25)
+		return;
+	if (letters[nb] == CLICKED)
+		letters[nb] = NONE;
+	else
+		letters[nb] = CLICKED;
+
 }
 
 bool Input::isMouseButtonPressed(int button)
@@ -89,31 +110,59 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 		scene->changeState(ENTER_POLYGON);
 		glutPostRedisplay();
 		break;
-	case 'q':
-		std::cout << "change state : ENTER_POINTS" << std::endl;
-		scene->changeState(ENTER_WINDOW);
-		glutPostRedisplay();
-		break;
-	case 'z':
+	case 'e':
 		std::cout << "change state : DRAW" << std::endl;
 		scene->changeState(DRAW);
 		glutPostRedisplay();
 		break;
-	case 'd':
-		std::cout << "flush polygons" << std::endl;
-		scene->flush();
-		break;
-	case 'f':
-		std::cout << "Lecture point intersection" << std::endl;
-		scene->changeState(FILL);
-		break;
-	case 'p':
-		scene->setDrawWindow();
+	case 'w':
+		std::cout << "ACTIVATE TRANSLATION" << std::endl;
+		scene->changeActiveTransformation(TRANSLATION);
 		glutPostRedisplay();
 		break;
-	case 'k':
-		std::cout << "Lecture point intersection" << std::endl;
-		scene->changeState(COLOR);
+	case 'x':
+		std::cout << "ACTIVATE ROTATION" << std::endl;
+		scene->changeActiveTransformation(ROTATION);
+		glutPostRedisplay();
+		break;
+	case 'c':
+		std::cout << "ACTIVATE SCALE" << std::endl;
+		scene->changeActiveTransformation(SCALE);
+		glutPostRedisplay();
+		break;
+	case 'v':
+		std::cout << "UNATIVE ALL" << std::endl;
+		scene->changeActiveTransformation(NO_TRANS);
+		glutPostRedisplay();
+		break;
+	case 'z':
+		scene->applyTransformation(touche);
+		glutPostRedisplay();
+		break;
+	case 'q':
+		scene->applyTransformation(touche);
+		glutPostRedisplay();
+		break;
+	case 's':
+		scene->applyTransformation(touche);
+		glutPostRedisplay();
+		break;
+	case 'd':
+		scene->applyTransformation(touche);
+		glutPostRedisplay();
+		break;
+	case 'l':
+		std::cout << "link" << std::endl;
+		scene->linkOtherCurve();
+		glutPostRedisplay();
+		break;
+	case '+':
+		scene->changeBezierRecursion(1);
+		glutPostRedisplay();
+		break;
+	case '-':
+		scene->changeBezierRecursion(-1);
+		glutPostRedisplay();
 		break;
 	default:
 		break;
@@ -218,6 +267,6 @@ void Input::checkMouseMoves(int x, int y)
 	mouseX = mX;
 	mouseY = mY;
 
-	scene->moveSelectedPoint(mouseX, mouseY);
-
+	if(scene->hasSelectedPoint())
+		scene->moveSelectedPoint(mouseX, mouseY);
 }

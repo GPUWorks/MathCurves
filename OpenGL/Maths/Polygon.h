@@ -29,8 +29,16 @@ namespace maths
 		bool sensTrigo;
 		void recursiveRecalculateBezierPoints();
 		std::vector<maths::Point> *bezierPoints;
+		maths::Polygon *outPolygon;
+		maths::Polygon *inPolygon;
+		int bezierRecursion;
 
 	public:
+		void setOutPolygon(maths::Polygon *pol);
+		void setInPolygon(maths::Polygon *pol);
+		maths::Polygon* getOutPolygon();
+		maths::Polygon* getInPolygon();
+
 		void calculateNormals();
 		void calculateVectors();
 		void addPoint(maths::Point p, int index);
@@ -45,7 +53,8 @@ namespace maths
 		~Polygon();
 		std::vector<maths::Point>* getPoints();
 		std::vector<maths::Point>* getBezierPoints();
-		void recalculateBezierPoints(int index);
+		void recalculateBezierPoints();
+		void changeBezierRecursion(int nb);
 	};
 }
 

@@ -108,10 +108,35 @@ maths::Polygon::Polygon()
 	vectors = new std::vector<maths::Point>();
 	bezierPoints = new std::vector<maths::Point>();
 	visibility = new std::vector<bool>();
+	outPolygon = NULL;
+	inPolygon = NULL;
+	bezierRecursion = 10;
 }
 
-void maths::Polygon::recalculateBezierPoints(int index)
+void maths::Polygon::setOutPolygon(maths::Polygon *pol)
 {
+	outPolygon = pol;
+}
+
+
+void maths::Polygon::setInPolygon(maths::Polygon *pol)
+{
+	inPolygon = pol;
+}
+
+maths::Polygon* maths::Polygon::getOutPolygon()
+{
+	return outPolygon;
+}
+
+maths::Polygon* maths::Polygon::getInPolygon()
+{
+	return inPolygon;
+}
+
+void maths::Polygon::recalculateBezierPoints()
+{
+	int index = bezierRecursion;
 	bezierPoints->clear();
 	for (int i = 0; i < points->size(); i++)
 	{
@@ -122,6 +147,16 @@ void maths::Polygon::recalculateBezierPoints(int index)
 		recursiveRecalculateBezierPoints();
 		--index;
 	}
+}
+
+
+void  maths::Polygon::changeBezierRecursion(int nb)
+{
+	bezierRecursion += nb;
+	if (bezierRecursion > 20)
+		bezierRecursion = 20;
+	if (bezierRecursion < 1)
+		bezierRecursion = 1;
 }
 
 void maths::Polygon::recursiveRecalculateBezierPoints()

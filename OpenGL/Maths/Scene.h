@@ -51,10 +51,13 @@ class Scene
 
 	int polygonSelected;
 	int pointSelected;
+	Transformation activeTransformation;
 
 	// TEST ANTHO
 	int countPass;
 	maths::Polygon savePoly;
+
+	float color[4];
 
 public:
 	void flush();
@@ -73,17 +76,23 @@ public:
 	void addPoint(maths::Point p);
 	void setDrawWindow();
 	static void menuCallBack(int i);
-	maths::Point rotate_point(maths::Polygon poly,float angle,maths::Point p);
-	maths::Point scalePoint(maths::Point p, float ratio);
-	maths::Point translatePoint(maths::Point p, float translateX, float translateY);
+	void rotate_point(maths::Polygon *poly, float angle);
+	void scalePoint(maths::Polygon *poly, float ratio);
+	void translatePoint(maths::Polygon *poly, float translateX, float translateY);
 	Scene(int w, int h);
 	~Scene();
 	bool isPointSelected(float mX, float mY);
 	float getWidth();
 	float getHeight();
 	void unselectPoint(); 
-	void moveSelectedPoint(float x, float y); 
-	bool hasSelectedPoint(); 
+	void moveSelectedPoint(float x, float y);
+	void selectPolygon(float x, float y);
+	bool hasSelectedPoint();
+	bool hasSelectedPolygon();
+	void changeActiveTransformation(Transformation trans);
+	void applyTransformation(char key);
+	void linkOtherCurve();
+	void changeBezierRecursion(int nb);
 };
 
 #endif // ! SCENE

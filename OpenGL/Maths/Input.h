@@ -28,6 +28,10 @@ enum State {
 	ENTER_POLYGON, ENTER_WINDOW, DRAW, FILL, COLOR
 };
 
+enum Transformation {
+	TRANSLATION, ROTATION, SCALE, NO_TRANS
+};
+
 class Scene;
 
 class Input
@@ -44,6 +48,7 @@ class Input
 
 	static void keyboardCallBack(unsigned char  touche, int x, int y);
 	static void mouseCallBack(int button, int state, int x, int y);
+	static void keyboardUpCallBack(unsigned char  touche, int x, int y);
 
 public:
 	Input(Scene *scene);
@@ -62,6 +67,7 @@ public:
 	float getMouseY();
 	bool mouseHasMove();
 	void SetMouseMove(bool b);
+	void checkKeyboardUpInputs(unsigned char  touche, int x, int y);
 };
 
 #endif
