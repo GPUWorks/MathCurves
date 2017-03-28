@@ -329,7 +329,7 @@ void Scene::mainLoop()
 		{
 			for (int i = 0; i < polygons->size(); i++)
 			{
-				polygons->at(i).recalculateBezierPoints();
+				polygons->at(i).recalculateBezierPointsCoxDeBoor();
 
 				const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
 				unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();

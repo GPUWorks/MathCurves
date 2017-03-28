@@ -2,6 +2,7 @@
 #define DEF_MATHS_POLYGON
 
 #include <vector>
+#include <iostream>
 
 namespace maths
 {
@@ -28,10 +29,17 @@ namespace maths
 		std::vector<bool> *visibility;
 		bool sensTrigo;
 		void recursiveRecalculateBezierPoints();
+		void recursiveRecalculateBezierPointsCoxDeBoor(int i, std::vector<maths::Point> *tmp);
+		float coxDeBoor(float u, int i, int k, const float* Knots);
 		std::vector<maths::Point> *bezierPoints;
 		maths::Polygon *outPolygon;
 		maths::Polygon *inPolygon;
 		int bezierRecursion;
+
+		unsigned int g_num_cvs;
+		unsigned int g_degree;
+		unsigned int g_order;
+		unsigned int g_num_knots;
 
 	public:
 		void setOutPolygon(maths::Polygon *pol);
@@ -54,6 +62,7 @@ namespace maths
 		std::vector<maths::Point>* getPoints();
 		std::vector<maths::Point>* getBezierPoints();
 		void recalculateBezierPoints();
+		void recalculateBezierPointsCoxDeBoor();
 		void changeBezierRecursion(int nb);
 	};
 }

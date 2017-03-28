@@ -1,5 +1,6 @@
 #include "Polygon.h"
 
+float g_Knots[] = { 0.0f,0.0f,0.0f,0.0f,0.25f,0.5f,0.75f,1.0f,1.0f,1.0f,1.0f };
 
 void maths::Polygon::calculateNormals()
 {
@@ -111,6 +112,7 @@ maths::Polygon::Polygon()
 	outPolygon = NULL;
 	inPolygon = NULL;
 	bezierRecursion = 10;
+
 }
 
 void maths::Polygon::setOutPolygon(maths::Polygon *pol)
@@ -132,6 +134,34 @@ maths::Polygon* maths::Polygon::getOutPolygon()
 maths::Polygon* maths::Polygon::getInPolygon()
 {
 	return inPolygon;
+}
+
+void maths::Polygon::recalculateBezierPointsCoxDeBoor()
+{
+	bezierPoints->clear();
+	for (int i = 0; i < points->size(); i++)
+	{
+		bezierPoints->push_back(points->at(i));
+	}
+
+	g_num_cvs = points->size();
+	g_degree = 3;
+	g_order = g_degree + 1;
+	g_num_knots = g_num_cvs + g_order;
+
+	std::vector<maths::Point> *tmp = new std::vector<maths::Point>();
+
+	for (int i = 0; i != bezierRecursion; ++i) {
+		recursiveRecalculateBezierPointsCoxDeBoor(i, tmp);
+	}
+
+	bezierPoints->clear();
+	for (int i = 0; i < tmp->size(); i++)
+	{
+		bezierPoints->push_back(tmp->at(i));
+	}
+	
+	delete tmp;
 }
 
 void maths::Polygon::recalculateBezierPoints()
@@ -157,6 +187,53 @@ void  maths::Polygon::changeBezierRecursion(int nb)
 		bezierRecursion = 20;
 	if (bezierRecursion < 1)
 		bezierRecursion = 1;
+}
+
+float maths::Polygon::coxDeBoor(float u, int i, int k, const float* Knots)
+{
+	if (k == 1)
+	{
+		if (Knots[i] <= u && u <= Knots[i + 1]) {
+			return 1.0f;
+		}
+		return 0.0f;
+	}
+	float Den1 = Knots[i + k - 1] - Knots[i];
+	float Den2 = Knots[i + k] - Knots[i + 1];
+	float Eq1 = 0, Eq2 = 0;
+	if (Den1>0) {
+		Eq1 = ((u - Knots[i]) / Den1) * coxDeBoor(u, i, k - 1, Knots);
+	}
+	if (Den2>0) {
+		Eq2 = (Knots[i + k] - u) / Den2 * coxDeBoor(u, i + 1, k - 1, Knots);
+	}
+	return Eq1 + Eq2;
+}
+
+void maths::Polygon::recursiveRecalculateBezierPointsCoxDeBoor(int i, std::vector<maths::Point> *tmp)
+{
+	float t = g_Knots[g_num_knots - 1] * i / (float)(bezierRecursion - 1);
+
+	if (i == bezierRecursion - 1)
+		t -= 0.001f;
+
+	maths::Point outPoint;
+	outPoint.x = outPoint.y = 0;
+
+	for (unsigned int i = 0; i != g_num_cvs; ++i) {
+
+		// calculate the effect of this point on the curve
+		float Val = coxDeBoor(t, i, g_order, g_Knots);
+
+		if (Val>0.001f) {
+
+			// sum effect of CV on this part of the curve
+			outPoint.x += Val * bezierPoints->at(i).x;
+			outPoint.y += Val * bezierPoints->at(i).y;
+		}
+		std::cout << "x=" << outPoint.x << "    y=" << outPoint.y << std::endl;
+		tmp->push_back(outPoint);
+	}
 }
 
 void maths::Polygon::recursiveRecalculateBezierPoints()
