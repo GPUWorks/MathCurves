@@ -325,6 +325,7 @@ void Scene::mainLoop()
 	GLuint colorID = glGetUniformLocation(program, "myColor");
 	glUniform4f(colorID, color[0], color[1], color[2], color[3]);
 
+
 	if (state == DRAW)
 	{
 		if (!polygons->empty())
@@ -346,7 +347,7 @@ void Scene::mainLoop()
 				}
 				
 
-				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, bezierPoints);
+				glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, bezierPoints);
 				glEnableVertexAttribArray(position_location);
 
 				glPointSize(5);
@@ -359,7 +360,7 @@ void Scene::mainLoop()
 					const maths::Point *points = polygons->at(i).getPoints()->data();
 					unsigned int size = pointSelected;
 
-					glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
 					glEnableVertexAttribArray(position_location);
 					glPointSize(5);
 					glDrawArrays(GL_POINTS, 0, size);
@@ -368,7 +369,7 @@ void Scene::mainLoop()
 					glUniform4f(colorID, 0.0, 1.0, 0.0, 1.0);
 					size = 1;
 
-					glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &points[pointSelected]);
+					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[pointSelected]);
 					glEnableVertexAttribArray(position_location);
 					glPointSize(5);
 					glDrawArrays(GL_POINTS, 0, size);
@@ -379,7 +380,7 @@ void Scene::mainLoop()
 
 					if (size > 0)
 					{
-						glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &points[pointSelected+1]);
+						glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[pointSelected+1]);
 						glEnableVertexAttribArray(position_location);
 						glPointSize(5);
 						glDrawArrays(GL_POINTS, 0, size);
@@ -391,7 +392,7 @@ void Scene::mainLoop()
 					const maths::Point *points = polygons->at(i).getPoints()->data();
 					unsigned int size = polygons->at(i).getPoints()->size();
 
-					glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
 					glEnableVertexAttribArray(position_location);
 
 					glPointSize(5);
@@ -414,7 +415,7 @@ void Scene::mainLoop()
 			const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
 			unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();
 
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, bezierPoints);
+			glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, bezierPoints);
 			glEnableVertexAttribArray(position_location);
 
 			glPointSize(5);
@@ -425,7 +426,7 @@ void Scene::mainLoop()
 			const maths::Point *points = polygons->at(i).getPoints()->data();
 			unsigned int size = polygons->at(i).getPoints()->size();
 
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+			glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
 			glEnableVertexAttribArray(position_location);
 
 			glPointSize(5);
@@ -439,7 +440,7 @@ void Scene::mainLoop()
 
 		for (int i = 0; i < size; i++)
 		{
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &points[i]);
+			glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[i]);
 			glEnableVertexAttribArray(position_location);
 
 			glPointSize(10);

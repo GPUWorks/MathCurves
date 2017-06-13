@@ -205,6 +205,7 @@ void Input::checkMouseClicks(int button, int state, int x, int y)
 		maths::Point p;
 		p.x = x;
 		p.y = y;
+		p.z = 0;
 		scene->addPoint(p);
 		//onMouse = 1;
 		glutPostRedisplay();

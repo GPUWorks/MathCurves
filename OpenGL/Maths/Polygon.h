@@ -10,6 +10,7 @@ namespace maths
 	{
 		float x;
 		float y;
+		float z;
 	};
 	typedef struct Point Point;
 
