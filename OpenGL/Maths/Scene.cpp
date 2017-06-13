@@ -53,7 +53,7 @@ void Scene::selectPolygon(float x, float y)
 	}
 	polygonSelected = -1;
 	glutPostRedisplay();
-		
+
 }
 
 bool Scene::hasSelectedPoint()
@@ -96,7 +96,7 @@ void Scene::initOpenGl(int argc, const char* argv)
 	//glEnable(GL_CULL_FACE);
 
 	input->init();
-	
+
 }
 
 void Scene::createMenu()
@@ -113,6 +113,8 @@ void Scene::createMenu()
 	glutAddMenuEntry("Activate scale        C", 5);
 	glutAddMenuEntry("Unactivate all        V", 6);
 	glutAddMenuEntry("Link other curve      L", 7);
+	glutAddMenuEntry("Draw simple extrude   U", 8);
+	glutAddMenuEntry("Draw revolution       R", 9);
 	/*glutAddMenuEntry("Cut               C", 3);
 	glutAddMenuEntry("Fill polygon(s)   F", 4);
 	glutAddMenuEntry("Set window        Q", 5);
@@ -126,7 +128,7 @@ void Scene::createMenu()
 	*/
 	/*if (isInPolygon)
 	{
-		glutAddMenuEntry("Coloring polygon", 5);
+	glutAddMenuEntry("Coloring polygon", 5);
 	}*/
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -173,7 +175,7 @@ void Scene::applyTransformation(char key)
 			glutPostRedisplay();
 		}
 	}
-	
+
 }
 
 
@@ -226,6 +228,12 @@ void Scene::menu(int num) {
 	case 7:
 		input->checkKeyboardInputs('l', 0, 0);
 		break;
+	case 8:
+		input->checkKeyboardInputs('r', 0, 0);
+		break;
+	case 9:
+		input->checkKeyboardInputs('u', 0, 0);
+		break;
 	default:
 		break;
 	}
@@ -249,7 +257,7 @@ void Scene::linkOtherCurve()
 
 			p2.addPoint(p1.getPoints()->at((p1.getPoints()->size() - 1)));
 		}
-		
+
 	}
 }
 
@@ -267,7 +275,7 @@ bool Scene::isPointSelected(float mX, float mY)
 			for (int j = 0; j < polygons->at(i).getPoints()->size(); j++)
 			{
 				maths::Point p = polygons->at(i).getPoints()->at(j);
-				
+
 				std::cout << "x=" << p.x <<"   y=" << p.y << std::endl;
 				if (mX > p.x - nbX && mX<p.x + nbX && mY>p.y - nbY && mY < p.y + nbY)
 				{
@@ -314,7 +322,7 @@ void Scene::mainLoop()
 	glClearColor(1.f, 1.f, 1.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	
+
 	auto program = g_BasicShader.GetProgram();
 	glUseProgram(program);
 
@@ -337,6 +345,7 @@ void Scene::mainLoop()
 				const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
 				unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();
 
+
 				if (i == polygonSelected)
 				{
 					glUniform4f(colorID, 1.0,0.0,0.0,1.0);
@@ -345,66 +354,88 @@ void Scene::mainLoop()
 				{
 					glUniform4f(colorID, color[0], color[1], color[2], color[3]);
 				}
-				
 
-				glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, bezierPoints);
-				glEnableVertexAttribArray(position_location);
-
-				glPointSize(5);
-
-				glDrawArrays(GL_LINE_STRIP, 0, bezierSize);
-				glDisableVertexAttribArray(position_location);
-
-				if (pointSelected != -1 && i == polygonSelected)
+				if(this->intermediateState == NONE)
 				{
-					const maths::Point *points = polygons->at(i).getPoints()->data();
-					unsigned int size = pointSelected;
-
-					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
+					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, bezierPoints);
 					glEnableVertexAttribArray(position_location);
+
 					glPointSize(5);
-					glDrawArrays(GL_POINTS, 0, size);
+
+					glDrawArrays(GL_LINE_STRIP, 0, bezierSize);
 					glDisableVertexAttribArray(position_location);
 
-					glUniform4f(colorID, 0.0, 1.0, 0.0, 1.0);
-					size = 1;
-
-					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[pointSelected]);
-					glEnableVertexAttribArray(position_location);
-					glPointSize(5);
-					glDrawArrays(GL_POINTS, 0, size);
-					glDisableVertexAttribArray(position_location);
-
-					glUniform4f(colorID, 1.0, 0.0, 0.0, 1.0);
-					size = polygons->at(i).getPoints()->size()- pointSelected-1;
-
-					if (size > 0)
+					if (pointSelected != -1 && i == polygonSelected)
 					{
-						glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[pointSelected+1]);
+						const maths::Point *points = polygons->at(i).getPoints()->data();
+						unsigned int size = pointSelected;
+
+						glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
 						glEnableVertexAttribArray(position_location);
 						glPointSize(5);
 						glDrawArrays(GL_POINTS, 0, size);
 						glDisableVertexAttribArray(position_location);
+
+						glUniform4f(colorID, 0.0, 1.0, 0.0, 1.0);
+						size = 1;
+
+						glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[pointSelected]);
+						glEnableVertexAttribArray(position_location);
+						glPointSize(5);
+						glDrawArrays(GL_POINTS, 0, size);
+						glDisableVertexAttribArray(position_location);
+
+						glUniform4f(colorID, 1.0, 0.0, 0.0, 1.0);
+						size = polygons->at(i).getPoints()->size()- pointSelected-1;
+
+						if (size > 0)
+						{
+							glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, &points[pointSelected+1]);
+							glEnableVertexAttribArray(position_location);
+							glPointSize(5);
+							glDrawArrays(GL_POINTS, 0, size);
+							glDisableVertexAttribArray(position_location);
+						}
+					}
+					else
+					{
+						const maths::Point *points = polygons->at(i).getPoints()->data();
+						unsigned int size = polygons->at(i).getPoints()->size();
+
+						glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
+						glEnableVertexAttribArray(position_location);
+
+						glPointSize(5);
+
+						glDrawArrays(GL_POINTS, 0, size);
+						glDisableVertexAttribArray(position_location);
 					}
 				}
-				else
+				// On vérifie que l'on a bien une courbe au moins de dessinée en plus de l'etat à vérifier
+				else if(this->intermediateState == EXTRUDE && polygons->size() > 0)
 				{
-					const maths::Point *points = polygons->at(i).getPoints()->data();
-					unsigned int size = polygons->at(i).getPoints()->size();
+					const maths::Point *bezierPointsExtrude = polygons->at(i).getBezierPoints()->data();
+					std::vector<maths::Point>* offsetBezierPoints = new std::vector<maths::Point>();
 
-					glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 0, points);
-					glEnableVertexAttribArray(position_location);
+					for(int i = 0; i < polygons->at(i).getBezierPoints()->size(); i++)
+					{
+						maths::Point offsetPoint = polygons->at(i).getBezierPoints()->at(i);
+						// A paramétrer
+						offsetPoint.z += 0.2f;
+						offsetBezierPoints->push_back(offsetPoint);
+					}
 
-					glPointSize(5);
+					// Traitement OpenGL
+				}
+				else if(this->intermediateState == REVOLUTION && polygons->size() > 0)
+				{
 
-					glDrawArrays(GL_POINTS, 0, size);
-					glDisableVertexAttribArray(position_location);
 				}
 			}
 		}
 
 	}
-	
+
 	else if (state == ENTER_POLYGON)
 	{
 
@@ -482,6 +513,14 @@ void Scene::changeState(State s)
 	}
 }
 
+void Scene::changeIntermediateState(IntermediateState s)
+{
+	if(this->intermediateState == s)
+		return;
+
+	this->intermediateState = s;
+}
+
 State Scene::getState()
 {
 	return state;
@@ -527,7 +566,7 @@ void Scene::addPoint(maths::Point p)
 	default:
 		break;
 	}
-	
+
 }
 
 void Scene::setDrawWindow()
@@ -547,7 +586,7 @@ void Scene::drawChar(const char c, const maths::Point position, const maths::Col
 	maths::Point p;
 	p.x = (position.x*(width / 2)) + (width / 2);
 	p.y= height -(position.y*(height/ 2)) + (height/ 2);
-	
+
 	glRasterPos2i(20, 20);
 	void * font = GLUT_BITMAP_9_BY_15;
 	glutBitmapCharacter(font, c);
@@ -571,7 +610,7 @@ std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 		posXLigneBalayage.x = 0;
 		posXLigneBalayage.y = y;
 
-	maths:Point posYLigneBalayage;
+maths:Point posYLigneBalayage;
 		posYLigneBalayage.x = width;
 		posYLigneBalayage.y = y;
 
@@ -690,7 +729,7 @@ void Scene::cursorInPolygon(maths::Point p)
 	for (int i = 0; i < polygons->size(); i++)
 	{
 		bool dog = isPointInPol(polygons->at(i), p);
-		
+
 		if (dog == true)
 		{
 			stackPolygonClicked->push_back(polygons->at(i));
@@ -750,41 +789,41 @@ void Scene::translatePoint(maths::Polygon *poly, float translateX, float transla
 
 void Scene::rotate_point(maths::Polygon *poly,float angle)
 {
-  float s = sin(angle);
-  float c = cos(angle);
+	float s = sin(angle);
+	float c = cos(angle);
 
-  // On calcul la moyenne des coordonnées des sommets du polygon
-  float pivotX = 0;
-  float pivotY = 0;
+	// On calcul la moyenne des coordonnées des sommets du polygon
+	float pivotX = 0;
+	float pivotY = 0;
 
-  int nbPoints = poly->getPoints()->size();
-  
-  for (int i = 0; i < nbPoints ; i++)
-  {
-	  pivotX += poly->getPoints()->at(i).x;
-	  pivotY += poly->getPoints()->at(i).y;
-  }
+	int nbPoints = poly->getPoints()->size();
 
-  pivotX = pivotX / nbPoints;
-  pivotY = pivotY / nbPoints;
+	for (int i = 0; i < nbPoints ; i++)
+	{
+		pivotX += poly->getPoints()->at(i).x;
+		pivotY += poly->getPoints()->at(i).y;
+	}
 
-  for (int i = 0; i <poly->getPoints()->size() ;i++ )
-  {
-	  Point p = poly->getPoints()->at(i);
-	  // application formule
-	  p.x -= pivotX;
-	  p.y -= pivotY;
+	pivotX = pivotX / nbPoints;
+	pivotY = pivotY / nbPoints;
 
-	  // rotation du point
-	  float xnew = p.x * c - p.y * s;
-	  float ynew = p.x * s + p.y * c;
+	for (int i = 0; i <poly->getPoints()->size() ;i++ )
+	{
+		Point p = poly->getPoints()->at(i);
+		// application formule
+		p.x -= pivotX;
+		p.y -= pivotY;
 
-	  p.x = xnew + pivotX;
-	  p.y = ynew + pivotY;
+		// rotation du point
+		float xnew = p.x * c - p.y * s;
+		float ynew = p.x * s + p.y * c;
 
-	  poly->setPoint(p, i);
-  }
-  
+		p.x = xnew + pivotX;
+		p.y = ynew + pivotY;
+
+		poly->setPoint(p, i);
+	}
+
 
 }
 
@@ -792,6 +831,7 @@ Scene::Scene(int w, int h)
 {
 	window = new maths::Polygon();
 	state = DRAW;
+	this->intermediateState = NOCHOSEN;
 	height = h;
 	width = w;
 	value = 0;

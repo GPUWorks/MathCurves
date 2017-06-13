@@ -28,6 +28,10 @@ enum State {
 	ENTER_POLYGON, ENTER_WINDOW, DRAW, FILL, COLOR
 };
 
+enum IntermediateState{
+	NOCHOSEN, EXTRUDE, REVOLUTION
+};
+
 enum Transformation {
 	TRANSLATION, ROTATION, SCALE, NO_TRANS
 };

@@ -25,6 +25,7 @@
 #include "Polygon.h"
 #include "Math.h"
 #include <map>
+#include <vector>
 
 class Scene
 {
@@ -44,6 +45,7 @@ class Scene
 	int mainMenu;
 	bool isInPolygon; 
 	State state;
+	IntermediateState intermediateState;
 	std::vector<maths::Polygon> *polygons; 
 	maths::Polygon *window;
 	std::vector<std::vector<maths::Point>*> *allIntersection ;
@@ -72,6 +74,7 @@ public:
 	void cursorInPolygon(maths::Point p);
 	maths::Point* ConvertPointPixelToOpenGLUnit(maths::Point point);
 	void changeState(State state);
+	void changeIntermediateState(IntermediateState s);
 	State getState();
 	void addPoint(maths::Point p);
 	void setDrawWindow();
