@@ -5,6 +5,8 @@ bool Math::isPointVisible(maths::Point polPoint, maths::Point winPoint, maths::P
 	return ((n.x*(polPoint.x - winPoint.x) + n.y*(polPoint.y - winPoint.y))>=-0.001);
 }
 
+
+
 maths::Point Math::getIntersection(maths::Point p1, maths::Point p2, maths::Point p3, maths::Point p4)
 {
 	maths::Point p;

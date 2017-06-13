@@ -35,6 +35,7 @@ namespace maths
 		maths::Polygon *outPolygon;
 		maths::Polygon *inPolygon;
 		int bezierRecursion;
+		maths::Point calculateBezierPoints(double t);
 
 		unsigned int g_num_cvs;
 		unsigned int g_degree;
@@ -62,9 +63,11 @@ namespace maths
 		~Polygon();
 		std::vector<maths::Point>* getPoints();
 		std::vector<maths::Point>* getBezierPoints();
-		void recalculateBezierPoints();
+		void recalculateBezierPoints(int w, int h);
 		void recalculateBezierPointsCoxDeBoor();
 		void changeBezierRecursion(int nb);
+		int factorial(int n);
+		float binomial_coff(float n, float k);
 	};
 }
 

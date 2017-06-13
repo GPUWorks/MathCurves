@@ -331,7 +331,7 @@ void Scene::mainLoop()
 		{
 			for (int i = 0; i < polygons->size(); i++)
 			{
-				polygons->at(i).recalculateBezierPoints();
+				polygons->at(i).recalculateBezierPoints(width,height);
 
 				const maths::Point *bezierPoints = polygons->at(i).getBezierPoints()->data();
 				unsigned int bezierSize = polygons->at(i).getBezierPoints()->size();
@@ -494,13 +494,11 @@ void Scene::addPoint(maths::Point p)
 		if (!polygons->empty())
 		{
 			//std::cout << "point added x=" << p.x << " y=" << p.y << std::endl;
-			p.x -= width / 2;
-			p.x /= width / 2;
 			p.y = height - p.y;
+			p.x -= width / 2;
 			p.y -= height / 2;
+			p.x /= width / 2;
 			p.y /= height / 2;
-			p.x = Math::round(p.x);
-			p.y = Math::round(p.y);
 			//std::cout << "point normalized x=" << p.x << " y=" << p.y << std::endl;
 
 			polygons->back().addPoint(p);

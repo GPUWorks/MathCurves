@@ -61,6 +61,24 @@ void maths::Polygon::addPoint(maths::Point p, int index)
 	visibility->insert(visibility->begin() + index, true);
 }
 
+
+
+int maths::Polygon::factorial(int n)
+{
+	if (n <= 1)
+		return(1);
+	else
+		n = n*factorial(n - 1);
+	return n;
+}
+
+float maths::Polygon::binomial_coff(float n, float k)
+{
+	float ans;
+	ans = factorial(n) / (factorial(k)*factorial(n - k));
+	return ans;
+}
+
 void maths::Polygon::removePoint()
 {
 	if (!points->empty())
@@ -173,83 +191,37 @@ void maths::Polygon::recalculateBezierPointsCoxDeBoor()
 	delete tmp;
 }
 
-void maths::Polygon::recalculateBezierPoints()
-{
-	int index = bezierRecursion;
-	bezierPoints->clear();
-
-	int start = 0;
-
-	if (inPolygon != NULL)
+maths::Point maths::Polygon::calculateBezierPoints(double t) {
+	maths::Point P;
+	P.x = 0; P.y = 0;
+	int size = points->size();
+	for (int i = 0; i<size; i++)
 	{
-		std::cout << "inPolygon" << std::endl;
-		start = 1;
+		P.x = P.x + binomial_coff((float)(size - 1), (float)i) * pow(t, (double)i) * pow((1 - t), (size - 1 - i)) * points->at(i).x;
+		P.y = P.y + binomial_coff((float)(size - 1), (float)i) * pow(t, (double)i) * pow((1 - t), (size - 1 - i)) * points->at(i).y;
 	}
-	
-	if (outPolygon != NULL)
-	{
-		std::cout << "outPolygon" << std::endl;
-		for (int i = start; i < points->size()-1; i++)
-		{
-			bezierPoints->push_back(points->at(i));
-		}
-
-		while (index > 0)
-		{
-			recursiveRecalculateBezierPoints();
-			--index;
-		}
-
-		std::vector<maths::Point> *tmp = new std::vector<maths::Point>();
-
-		for (int i = 0; i < bezierPoints->size(); i++)
-		{
-			tmp->push_back(bezierPoints->at(i));
-		}
-
-		bezierPoints->clear();
-		bezierPoints->push_back(points->at(points->size() - 2));
-		bezierPoints->push_back(points->at(points->size() - 1));
-		
-		Point p3 = outPolygon->getPoint(1);
-		bezierPoints->push_back(p3);
-			
-
-		index = bezierRecursion;
-		while (index > 0)
-		{
-			recursiveRecalculateBezierPoints();
-			--index;
-		}
-
-		for (int i = 0; i < bezierPoints->size(); i++)
-		{
-			tmp->push_back(bezierPoints->at(i));
-		}
-		bezierPoints->clear();
-		for (int i = 0; i < tmp->size(); i++)
-		{
-			bezierPoints->push_back(tmp->at(i));
-		}
-
-		delete tmp;
-	}
-	else
-	{
-		for (int i = start; i < points->size(); i++)
-		{
-			bezierPoints->push_back(points->at(i));
-		}
-
-		while (index > 0)
-		{
-			recursiveRecalculateBezierPoints();
-			--index;
-		}
-	}
-	
-	
+	return P;
 }
+
+void maths::Polygon::recalculateBezierPoints(int width, int height)
+{
+	if (points->size() <= 0)
+		return;
+
+	bezierPoints->clear();
+	maths::Point p1 = points->at(0);
+	bezierPoints->push_back(p1);
+	double step = 0.2 / bezierRecursion;
+	for (double t = 0.0; t <= 1.0; t += step)
+	{
+		Point p2 = calculateBezierPoints( t);
+
+		bezierPoints->push_back(p2);
+		p1 = p2;
+	}
+	bezierPoints->push_back(points->at(points->size()-1));
+}
+
 
 
 
@@ -261,8 +233,8 @@ maths::Point maths::Polygon::getPoint(int i)
 void  maths::Polygon::changeBezierRecursion(int nb)
 {
 	bezierRecursion += nb;
-	if (bezierRecursion > 20)
-		bezierRecursion = 20;
+	if (bezierRecursion > 10)
+		bezierRecursion = 10;
 	if (bezierRecursion < 1)
 		bezierRecursion = 1;
 }
